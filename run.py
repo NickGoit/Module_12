@@ -1,5 +1,7 @@
 from collections import UserDict
 from datetime import datetime
+import pickle
+import os
 
 
 class Field:
@@ -93,9 +95,10 @@ class Record:
         self.name = Name(name_in)
         self.phones = [Phone(phone) if phone else []]
         self.birth = birth_str
+        self.data = {'name': self.name, 'phone': self.phones, 'birth': self.birth}
 
     def __repr__(self):
-        return f'{self.name} {self.phones} {self.birth}'
+        return f'name:{self.name} phone:{self.phones} date of birth:{self.birth}'
 
     def __str__(self):
         return f'name:{self.name} phone:{self.phones} {self.birth}'
@@ -118,11 +121,14 @@ class Record:
         birth.birthday = self.birth
         return birth.day_to_next_birthday()
 
+    def __getitem__(self, item):
+        return self.data[item]
+
+
 
 class AdressBook(UserDict):
     def add_record(self, record):
         self.data[record.name.value] = record
-        self.number_data = 0
 
     def edit_record(self, name, old_phone, new_phone):
         local_record = self.data[name]
@@ -134,6 +140,28 @@ class AdressBook(UserDict):
     def find_record(self, name):
         error_text = f'Contact {name} is not found at AdressBook'
         return self.data[name] if name in self.data else error_text
+
+    def find_records(self, request_str: str):
+        print(request_str)
+        found_list = []
+        for val in self.data.values():
+            print(val['name'])
+            #print(key)
+            #if request_str in data['name'] or request_str in data['phone']:
+        # for account in self.data:
+        #     if request_str in account:
+        #         found_list.append(self.data[account])
+        # else:
+        #     if found_list:
+        #         return found_list
+        #     else:
+        #         return f'Not found'
+                # for telephone in self.data.values():
+                #     print(telephone, type(telephone))
+
+
+
+
 
     def show_all_book(self):
         return list(self.data.values())
@@ -154,9 +182,21 @@ class AdressBook(UserDict):
     # def __repr__(self):
     #     return f'{self.data.values()}'
 
+    def __getstate__(self):
+        attributes = self.__dict__.copy()
+        return attributes
 
-address_book = AdressBook()
+    def __setstate__(self, state):
+        self.__dict__ = state
 
+
+
+if os.path.exists('database.pickle'):
+    with open('database.pickle', 'rb') as f1:
+        address_book = pickle.load(f1)
+else:
+    address_book = AdressBook()
+#address_book = AdressBook()
 
 def input_error(func):
     def wrapper(*args, **kwargs):
@@ -198,6 +238,10 @@ def find_fun(name):
     return f'Under the {name} contact is recorded phone {address_book.find_record(name)}'
 
 
+def find_fun2(request):
+    return f'Under the {request} is found {address_book.find_records(request)}'
+
+
 @input_error
 def show_all_fun():
     database = ''
@@ -211,6 +255,8 @@ def show_all_fun():
 
 @input_error
 def goodbay_fun():
+    with open('database.pickle', 'wb') as file:
+        pickle.dump(address_book, file)
     return 'Thank you for applying our Bot-assist. Have a nice day'
 
 
@@ -241,6 +287,7 @@ COMMANDS = {
     'add': adding_fun,
     'change': change_fun,
     'phone': find_fun,
+    'find': find_fun2,
     'show all': show_all_fun,
     'good bye': goodbay_fun,
     'close': goodbay_fun,
@@ -259,16 +306,27 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # with open('database.pickle', 'rb') as f1:
+    #     address_book = pickle.load(f1)
+    # print(address_book.__dict__)
+    # print(address_book)
     # birth1 = Birthday()
     # print(birth1)
     # birth1.birthday = '14.11.1988'
     # print(birth1)
     # print(birth1.day_to_next_birthday())
     # record1 = Record('Nick','+38245', '1985.11.18')
+    # print(record1['phone'])
+    #
     # ab = AdressBook()
     # ab.add_record(record1)
-    # print(ab.show_all_book())
-    #print(record1)
+    #
+    # print(ab.keys())
+    # print(ab.values())
+    # print(dat['phone'])
+    # print(record1['phone'])
+    # for indata in record1['name']:
+    #     print(indata)
     # print(record1)
     # print(record1.days_to_birthday())
     # phone1 = Phone('+385-5754-5454-5')
