@@ -34,10 +34,6 @@ class Phone(Field):
 
     @value.setter
     def value(self, new_value: str):
-        # if new_value.startswith('+38'):
-        #     self.__value = new_value
-        # else:
-        #     print('Wrong number type')
         for elem in new_value:
             if elem in ('+', '-', '(', ')', ' '):
                 new_value = new_value.replace(elem, '')
@@ -93,7 +89,7 @@ class Record:
 
     def __init__(self, name_in, phone=None, birth_str=None):
         self.name = Name(name_in)
-        self.phones = [Phone(phone) if phone else []]
+        self.phones = [Phone(phone) if phone else None]
         self.birth = birth_str
         self.data = {'name': self.name, 'phone': self.phones, 'birth': self.birth}
 
@@ -125,7 +121,6 @@ class Record:
         return self.data[item]
 
 
-
 class AdressBook(UserDict):
     def add_record(self, record):
         self.data[record.name.value] = record
@@ -142,26 +137,15 @@ class AdressBook(UserDict):
         return self.data[name] if name in self.data else error_text
 
     def find_records(self, request_str: str):
-        print(request_str)
         found_list = []
         for val in self.data.values():
-            print(val['name'])
-            #print(key)
-            #if request_str in data['name'] or request_str in data['phone']:
-        # for account in self.data:
-        #     if request_str in account:
-        #         found_list.append(self.data[account])
-        # else:
-        #     if found_list:
-        #         return found_list
-        #     else:
-        #         return f'Not found'
-                # for telephone in self.data.values():
-                #     print(telephone, type(telephone))
-
-
-
-
+            if (request_str in str(val['name'])) or (request_str in str(val['phone'])):
+                found_list.append(val)
+        else:
+            if found_list:
+                return found_list
+            else:
+                return f'Not found'
 
     def show_all_book(self):
         return list(self.data.values())
@@ -196,7 +180,7 @@ if os.path.exists('database.pickle'):
         address_book = pickle.load(f1)
 else:
     address_book = AdressBook()
-#address_book = AdressBook()
+
 
 def input_error(func):
     def wrapper(*args, **kwargs):
@@ -219,7 +203,7 @@ def greetings_fun():
 
 
 @input_error
-def adding_fun(name, phone, birthday=None):
+def adding_fun(name, phone=None, birthday=None):
     # CONTACTS[name] = phone              # Було так
     record = Record(name, phone, birthday)        # Має стати так
     address_book.add_record(record)
@@ -306,31 +290,7 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # with open('database.pickle', 'rb') as f1:
-    #     address_book = pickle.load(f1)
-    # print(address_book.__dict__)
-    # print(address_book)
-    # birth1 = Birthday()
-    # print(birth1)
-    # birth1.birthday = '14.11.1988'
-    # print(birth1)
-    # print(birth1.day_to_next_birthday())
-    # record1 = Record('Nick','+38245', '1985.11.18')
-    # print(record1['phone'])
-    #
-    # ab = AdressBook()
-    # ab.add_record(record1)
-    #
-    # print(ab.keys())
-    # print(ab.values())
-    # print(dat['phone'])
-    # print(record1['phone'])
-    # for indata in record1['name']:
-    #     print(indata)
-    # print(record1)
-    # print(record1.days_to_birthday())
-    # phone1 = Phone('+385-5754-5454-5')
-    # print(phone1.value)
+
 
 
 
